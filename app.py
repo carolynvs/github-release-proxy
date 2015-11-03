@@ -1,5 +1,6 @@
 from flask import Flask, redirect
 import logging
+import os
 import requests
 
 logging.basicConfig(level=logging.DEBUG)
@@ -21,13 +22,22 @@ def github_redirect(owner, repo, version, path):
 
 def get_latest_version(owner, repo):
 	latest_release_url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
-	response = requests.get(latest_release_url)
+	response = requests.get(latest_release_url, auth=build_github_auth())
+
 	if response.status_code != 200:
+		logging.debug("GitHub Request Failed with %s %s", response.status_code, response.content)
 		return None
 
 	response_json = response.json()
 	return response_json['tag_name']
 
+
+def build_github_auth():
+	token = os.getenv('GITHUB_TOKEN')
+	if not token:
+		return None
+
+	return ('', token)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=5000)
