@@ -10,7 +10,7 @@ def github_redirect(owner, repo, version, path):
 	if not should_proxy_request(owner):
 		return "I'm sorry, Dave. I'm afraid I can't do that.", 403
 
-	if version == 'latest':
+	if version.lower() == 'latest':
 		version = get_latest_version(owner, repo)
 
 		if version == None:
