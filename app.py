@@ -2,7 +2,7 @@ from flask import Flask, redirect
 import logging
 import requests
 
-logging.basicConfig(filename='/var/log/github-release-proxy.log',level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 
 
