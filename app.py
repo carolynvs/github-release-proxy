@@ -8,6 +8,7 @@ app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache_timeout = os.getenv('CACHE_TIMEOUT') or 60
 
+
 @app.route('/<owner>/<repo>/<version>/<path:path>')
 @cache.cached(timeout=cache_timeout)
 def github_redirect(owner, repo, version, path):
@@ -17,20 +18,25 @@ def github_redirect(owner, repo, version, path):
     if version.lower() == 'latest':
         version = get_latest_version(owner, repo)
 
-        if version == None:
-            return 'Could not find the latest release for https://github.com/{}/{}'.format(owner, repo), 404
+        if version is None:
+            return ('Could not find the latest release for '
+                    'https://github.com/{}/{}'.format(owner, repo), 404)
 
-    github_url = 'https://github.com/{}/{}/releases/download/{}/{}'.format(owner, repo, version, path)
+    github_url = ('https://github.com/{}/{}/releases/download/{}/{}'
+                  .format(owner, repo, version, path))
 
     return redirect(github_url, code=307)
 
+
 @cache.memoize(timeout=cache_timeout)
 def get_latest_version(owner, repo):
-    latest_release_url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
+    latest_release_url = ('https://api.github.com/repos/{}/{}/releases/latest'
+                          .format(owner, repo))
     response = requests.get(latest_release_url, auth=github_auth)
 
     if response.status_code != 200:
-        logging.debug('GitHub Request Failed with %s %s', response.status_code, response.content)
+        logging.debug('GitHub Request Failed with %s %s',
+                      response.status_code, response.content)
         return None
 
     response_json = response.json()
@@ -42,7 +48,7 @@ def build_github_auth():
     if not token:
         return None
 
-    return ('', token)
+    return '', token
 
 
 def should_proxy_request(owner):
