@@ -1,11 +1,15 @@
 from flask import Flask, redirect
+from flask.ext.cache import Cache
 import logging
 import os
 import requests
 
 app = Flask(__name__)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+cache_timeout = os.getenv('CACHE_TIMEOUT') or 60
 
 @app.route('/<owner>/<repo>/<version>/<path:path>')
+@cache.cached(timeout=cache_timeout)
 def github_redirect(owner, repo, version, path):
 	if not should_proxy_request(owner):
 		return "I'm sorry, Dave. I'm afraid I can't do that.", 403
@@ -20,7 +24,7 @@ def github_redirect(owner, repo, version, path):
 
 	return redirect(github_url, code=307)
 
-
+@cache.memoize(timeout=cache_timeout)
 def get_latest_version(owner, repo):
 	latest_release_url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
 	response = requests.get(latest_release_url, auth=github_auth)

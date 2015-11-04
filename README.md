@@ -28,6 +28,9 @@ are allowed to use the proxy. For example: `myuser,myorg`.
 
 `GITHUB_TOKEN` is optional but recommended. Without it requests to GitHub will be severely rate limited.
 
+`CACHE_TIMEOUT` is optional and defaults to 60 seconds. Specifies how long requests
+to both this proxy and GitHub should be cached.
+
 ## Usage
 Build URLs using the following template. Replace `<proxy>` with the value from step 3.
 
