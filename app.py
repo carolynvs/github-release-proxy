@@ -11,48 +11,48 @@ cache_timeout = os.getenv('CACHE_TIMEOUT') or 60
 @app.route('/<owner>/<repo>/<version>/<path:path>')
 @cache.cached(timeout=cache_timeout)
 def github_redirect(owner, repo, version, path):
-	if not should_proxy_request(owner):
-		return "I'm sorry, Dave. I'm afraid I can't do that.", 403
+    if not should_proxy_request(owner):
+        return "I'm sorry, Dave. I'm afraid I can't do that.", 403
 
-	if version.lower() == 'latest':
-		version = get_latest_version(owner, repo)
+    if version.lower() == 'latest':
+        version = get_latest_version(owner, repo)
 
-		if version == None:
-			return 'Could not find the latest release for https://github.com/{}/{}'.format(owner, repo), 404
+        if version == None:
+            return 'Could not find the latest release for https://github.com/{}/{}'.format(owner, repo), 404
 
-	github_url = 'https://github.com/{}/{}/releases/download/{}/{}'.format(owner, repo, version, path)
+    github_url = 'https://github.com/{}/{}/releases/download/{}/{}'.format(owner, repo, version, path)
 
-	return redirect(github_url, code=307)
+    return redirect(github_url, code=307)
 
 @cache.memoize(timeout=cache_timeout)
 def get_latest_version(owner, repo):
-	latest_release_url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
-	response = requests.get(latest_release_url, auth=github_auth)
+    latest_release_url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
+    response = requests.get(latest_release_url, auth=github_auth)
 
-	if response.status_code != 200:
-		logging.debug('GitHub Request Failed with %s %s', response.status_code, response.content)
-		return None
+    if response.status_code != 200:
+        logging.debug('GitHub Request Failed with %s %s', response.status_code, response.content)
+        return None
 
-	response_json = response.json()
-	return response_json['tag_name']
+    response_json = response.json()
+    return response_json['tag_name']
 
 
 def build_github_auth():
-	token = os.getenv('GITHUB_TOKEN')
-	if not token:
-		return None
+    token = os.getenv('GITHUB_TOKEN')
+    if not token:
+        return None
 
-	return ('', token)
+    return ('', token)
 
 
 def should_proxy_request(owner):
-	return owner in whitelist
+    return owner in whitelist
 
 
 if __name__ == '__main__':
-	whitelist = (os.getenv('WHITELIST') or '').split(',')
-	github_auth = build_github_auth()
+    whitelist = (os.getenv('WHITELIST') or '').split(',')
+    github_auth = build_github_auth()
 
-	logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
 
-	app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)
