@@ -11,7 +11,7 @@ _Look no further!_
     with a comma separated list of GitHub organizations or users that your proxy should handle.
 
     ```bash
-    $ docker run -e GITHUB_TOKEN=<token> -e WHITELIST=<whitelist> -d -P rackerlabs/github-release-proxy
+    $ docker run -e GITHUB_TOKEN=<token> -e WHITELIST=<whitelist> -d -P carolynvs/github-release-proxy
     ```
 3. Run the following command to get your proxy's address and port.
 

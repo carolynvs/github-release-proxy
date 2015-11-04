@@ -1,1 +1,1 @@
-docker build --tag rackerlabs/github-release-proxy .
+docker build --tag carolynvs/github-release-proxy .
